@@ -10,7 +10,7 @@
     "bpp_id": "bpp.energy-provider.com",
     "bpp_uri": "https://bpp.energy-provider.com",
     "ttl": "PT30S",
-    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0",
+    "domain": "deg:p2p-trading",
     "location": {
       "city": {
         "code": "BLR",
@@ -22,13 +22,13 @@
       }
     },
     "schema_context": [
-      "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyResource/v0.2/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/heads/issue-80-fix-p2ptrading-schema/schema/EnergyTrade/v0.3/context.jsonld"
     ]
   },
   "message": {
     "filters": {
       "type": "jsonpath",
-      "expression": "$[?('p2p-interdiscom-trading-pilot-network' == @.beckn:networkId && @.beckn:itemAttributes.sourceType == 'SOLAR' && @.beckn:itemAttributes.deliveryMode == 'GRID_INJECTION' && @.beckn:itemAttributes.availableQuantity >= 10.0 )]"
+      "expression": "$[?('p2p-interdiscom-trading-pilot-network' == @.beckn:networkId && @.beckn:provider.beckn:providerAttributes.meterId && @.beckn:provider.beckn:providerAttributes.utilityId)]"
     }
   }
 }
