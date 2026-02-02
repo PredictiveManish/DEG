@@ -28,7 +28,7 @@
   "message": {
     "filters": {
       "type": "jsonpath",
-      "expression": "$[?('p2p-interdiscom-trading-pilot-network' == @.beckn:networkId && @.beckn:provider.beckn:providerAttributes.meterId && @.beckn:provider.beckn:providerAttributes.utilityId)]"
+      "expression": "$[?('p2p-interdiscom-trading-pilot-network' == @.beckn:networkId && @.beckn:provider.beckn:providerAttributes.utilityId == 'TPDDL-DL')]"
     }
   }
 }
