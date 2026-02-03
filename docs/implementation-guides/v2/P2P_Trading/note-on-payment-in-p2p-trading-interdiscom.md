@@ -1,4 +1,4 @@
-# Payment Design for P2P Energy Trading (Inter-Discom) <!-- omit from toc -->
+# Payment Design for Inter-Utility Peer to Peer Energy Trading <!-- omit from toc -->
 
 Version 0.1 (Non-Normative)
 
