@@ -42,7 +42,7 @@ Even though payments flow through platforms (BAP → BPP), the underlying transa
 Platforms act with **delegated agency** on behalf of their customers. This means:
 - Customers must have **full visibility** into all transaction components
 - All fees (both buyer and seller platform fees) must be disclosed upfront
-- Customers retain the **right to pay sellers directly** in future implementations
+- In future implementations, it is conceivable that customers may **pay sellers directly**
 
 ### 2.2. Bill Component Transparency
 
