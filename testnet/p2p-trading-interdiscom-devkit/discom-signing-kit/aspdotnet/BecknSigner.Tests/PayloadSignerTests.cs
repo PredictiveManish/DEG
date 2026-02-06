@@ -1,5 +1,6 @@
 using System.Text;
 using BecknSigner;
+using Xunit;
 
 namespace BecknSigner.Tests;
 
