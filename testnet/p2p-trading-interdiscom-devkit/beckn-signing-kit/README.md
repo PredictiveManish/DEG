@@ -1,6 +1,6 @@
-# DISCOM Signing Kit
+# Signing Kit for adding auth header when connecting to ledger service
 
-SDKs for utility companies (DISCOMs) to sign Beckn protocol payloads for the DEG Ledger Service.
+SDKs for sign payload using Ed25519 signature to connect to ledger service.
 
 ## What it does
 
