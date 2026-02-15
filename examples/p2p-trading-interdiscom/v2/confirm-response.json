@@ -27,7 +27,7 @@
           "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/heads/p2p-trading/schema/EnergyTrade/v0.3/context.jsonld",
           "@type": "EnergyCustomer",
           "meterId": "der://meter/98765456",
-          "utilityCustomerId": "BESCOM-CUST-001",
+          "utilityCustomerId": "BESCOM-CUST-002",
           "utilityId": "BESCOM-KA"
         }
       },
@@ -110,7 +110,7 @@
             "providerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/heads/p2p-trading/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
-              "meterId": "der://meter/98765456",
+              "meterId": "der://meter/12345654",
               "utilityCustomerId": "BESCOM-CUST-001",
               "utilityId": "BESCOM-KA"
             }
