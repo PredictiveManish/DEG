@@ -74,7 +74,7 @@ modules:
         steps:
           - id: degpolicyenforcer
             config:
-              policyDir: /app/policies
+              policyFile: /app/policies/p2p-trading-interdiscom.rego
               actions: "confirm"
               enabled: "true"
               debugLogging: "true"
