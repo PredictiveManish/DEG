@@ -67,7 +67,7 @@ modules:
           config:
             routingConfig: ./config/local-p2p-routing-SellerBPPReceiver-from-BuyerBAP.yaml
         steps:
-          - id: degpolicyenforcer
+          - id: policyenforcer
             config:
               policyFile: /app/policies/p2p-trading-interdiscom.rego
               actions: "confirm"
@@ -79,7 +79,7 @@ modules:
         - validateSign
         - addRoute
         - validateSchema
-        - degpolicyenforcer
+        - policyenforcer
 
   - name: bppTxnCaller
     path: /bpp/caller/

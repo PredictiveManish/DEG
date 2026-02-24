@@ -1,4 +1,4 @@
-// Package main provides the plugin entry point for the DEG Policy Enforcer plugin.
+// Package main provides the plugin entry point for the Policy Enforcer plugin.
 // This file is compiled as a Go plugin (.so) and loaded by beckn-onix at runtime.
 package main
 
@@ -6,15 +6,15 @@ import (
 	"context"
 
 	"github.com/beckn-one/beckn-onix/pkg/plugin/definition"
-	degpolicyenforcer "github.com/beckn-one/deg/plugins/degpolicyenforcer"
+	policyenforcer "github.com/beckn-one/deg/plugins/policyenforcer"
 )
 
 // provider implements the StepProvider interface for plugin loading.
 type provider struct{}
 
-// New creates a new DEGPolicyEnforcer step instance.
+// New creates a new PolicyEnforcer step instance.
 func (p provider) New(ctx context.Context, cfg map[string]string) (definition.Step, func(), error) {
-	enforcer, err := degpolicyenforcer.New(cfg)
+	enforcer, err := policyenforcer.New(cfg)
 	if err != nil {
 		return nil, nil, err
 	}

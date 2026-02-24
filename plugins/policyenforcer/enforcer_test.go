@@ -1,4 +1,4 @@
-package degpolicyenforcer
+package policyenforcer
 
 import (
 	"context"
@@ -35,7 +35,7 @@ func writePolicyDir(t *testing.T, filename, content string) string {
 // The actual delivery_window.rego policy (read from project policies dir)
 func projectPolicyDir() string {
 	// Tests run from the package directory; policies are at ../../policies/...
-	return filepath.Join("..", "..", "policies", "p2p-trading-interdiscom")
+	return filepath.Join("..", "..", "testnet", "p2p-trading-interdiscom-devkit", "policies")
 }
 
 // --- Config Tests ---

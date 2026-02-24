@@ -1,4 +1,4 @@
-package degpolicyenforcer
+package policyenforcer
 
 import (
 	"encoding/json"
@@ -9,29 +9,29 @@ import (
 	"github.com/beckn-one/beckn-onix/pkg/model"
 )
 
-// DEGPolicyEnforcer is a Step plugin that evaluates beckn messages against
+// PolicyEnforcer is a Step plugin that evaluates beckn messages against
 // OPA policies and NACKs non-compliant messages.
-type DEGPolicyEnforcer struct {
+type PolicyEnforcer struct {
 	config    *Config
 	evaluator *Evaluator
 }
 
-// New creates a new DEGPolicyEnforcer instance.
-func New(cfg map[string]string) (*DEGPolicyEnforcer, error) {
+// New creates a new PolicyEnforcer instance.
+func New(cfg map[string]string) (*PolicyEnforcer, error) {
 	config, err := ParseConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("degpolicyenforcer: config error: %w", err)
+		return nil, fmt.Errorf("policyenforcer: config error: %w", err)
 	}
 
 	evaluator, err := NewEvaluator(config.PolicyDir, config.PolicyFile, config.PolicyUrls, config.Query, config.RuntimeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("degpolicyenforcer: failed to initialize OPA evaluator: %w", err)
+		return nil, fmt.Errorf("policyenforcer: failed to initialize OPA evaluator: %w", err)
 	}
 
-	fmt.Printf("[DEGPolicyEnforcer] Initialized (actions=%v, query=%s, policies=%v, debugLogging=%v)\n",
+	fmt.Printf("[PolicyEnforcer] Initialized (actions=%v, query=%s, policies=%v, debugLogging=%v)\n",
 		config.Actions, config.Query, evaluator.ModuleNames(), config.DebugLogging)
 
-	return &DEGPolicyEnforcer{
+	return &PolicyEnforcer{
 		config:    config,
 		evaluator: evaluator,
 	}, nil
@@ -40,9 +40,9 @@ func New(cfg map[string]string) (*DEGPolicyEnforcer, error) {
 // Run implements the Step interface. It evaluates the message body against
 // loaded OPA policies. Returns a BadReqErr (causing NACK) if violations are found.
 // Returns an error on evaluation failure (fail closed).
-func (e *DEGPolicyEnforcer) Run(ctx *model.StepContext) error {
+func (e *PolicyEnforcer) Run(ctx *model.StepContext) error {
 	if !e.config.Enabled {
-		log.Debug(ctx, "DEGPolicyEnforcer: plugin disabled, skipping")
+		log.Debug(ctx, "PolicyEnforcer: plugin disabled, skipping")
 		return nil
 	}
 
@@ -51,37 +51,37 @@ func (e *DEGPolicyEnforcer) Run(ctx *model.StepContext) error {
 
 	if !e.config.IsActionEnabled(action) {
 		if e.config.DebugLogging {
-			log.Debugf(ctx, "DEGPolicyEnforcer: action %q not in configured actions %v, skipping", action, e.config.Actions)
+			log.Debugf(ctx, "PolicyEnforcer: action %q not in configured actions %v, skipping", action, e.config.Actions)
 		}
 		return nil
 	}
 
 	if e.config.DebugLogging {
-		log.Debugf(ctx, "DEGPolicyEnforcer: evaluating policies for action %q (modules=%v)", action, e.evaluator.ModuleNames())
+		log.Debugf(ctx, "PolicyEnforcer: evaluating policies for action %q (modules=%v)", action, e.evaluator.ModuleNames())
 	}
 
 	violations, err := e.evaluator.Evaluate(ctx, ctx.Body)
 	if err != nil {
 		// Fail closed: evaluation error → NACK
-		log.Errorf(ctx, err, "DEGPolicyEnforcer: policy evaluation failed: %v", err)
+		log.Errorf(ctx, err, "PolicyEnforcer: policy evaluation failed: %v", err)
 		return model.NewBadReqErr(fmt.Errorf("policy evaluation error: %w", err))
 	}
 
 	if len(violations) == 0 {
 		if e.config.DebugLogging {
-			log.Debugf(ctx, "DEGPolicyEnforcer: message compliant for action %q", action)
+			log.Debugf(ctx, "PolicyEnforcer: message compliant for action %q", action)
 		}
 		return nil
 	}
 
 	// Non-compliant: NACK with all violation messages
 	msg := fmt.Sprintf("policy violation(s): %s", strings.Join(violations, "; "))
-	log.Warnf(ctx, "DEGPolicyEnforcer: %s", msg)
+	log.Warnf(ctx, "PolicyEnforcer: %s", msg)
 	return model.NewBadReqErr(fmt.Errorf("%s", msg))
 }
 
 // Close is a no-op for the policy enforcer (no resources to release).
-func (e *DEGPolicyEnforcer) Close() {}
+func (e *PolicyEnforcer) Close() {}
 
 // extractAction gets the beckn action from the URL path or message body.
 func extractAction(urlPath string, body []byte) string {

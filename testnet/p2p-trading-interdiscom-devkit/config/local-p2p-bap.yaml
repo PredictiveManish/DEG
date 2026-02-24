@@ -72,7 +72,7 @@ modules:
               uuidKeys: transaction_id,message_id
               role: bap
         steps:
-          - id: degpolicyenforcer
+          - id: policyenforcer
             config:
               policyFile: /app/policies/p2p-trading-interdiscom.rego
               actions: "confirm"
@@ -96,7 +96,7 @@ modules:
         - validateSign
         - addRoute
         - validateSchema
-        - degpolicyenforcer
+        - policyenforcer
         - degledgerrecorder
 
   - name: bapTxnCaller

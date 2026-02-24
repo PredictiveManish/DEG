@@ -1,11 +1,11 @@
-package degpolicyenforcer
+package policyenforcer
 
 import (
 	"fmt"
 	"strings"
 )
 
-// Config holds the configuration for the DEG Policy Enforcer plugin.
+// Config holds the configuration for the Policy Enforcer plugin.
 type Config struct {
 	// PolicyDir is a local directory containing .rego policy files (all loaded).
 	// At least one policy source (PolicyDir, PolicyFile, or PolicyUrls) is required.

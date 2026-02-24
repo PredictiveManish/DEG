@@ -1,4 +1,4 @@
-package degpolicyenforcer
+package policyenforcer
 
 import (
 	"context"
