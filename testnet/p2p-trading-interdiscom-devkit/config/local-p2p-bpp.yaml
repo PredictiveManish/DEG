@@ -69,7 +69,7 @@ modules:
         steps:
           - id: policyenforcer
             config:
-              policyFile: /app/policies/p2p-trading-interdiscom.rego
+              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading/testnet/p2p-trading-interdiscom-devkit/policies/p2p-trading-interdiscom.rego"
               actions: "confirm"
               enabled: "true"
               debugLogging: "true"
