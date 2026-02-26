@@ -4,48 +4,39 @@ import rego.v1
 
 # P2P Energy Trading – Delivery, Validity & Meter Policy
 #
-# Action-gated rules: the policy checks input.context.action to decide
-# which rules apply.
+# Rules are gated by message structure so they automatically apply to
+# all beckn actions: confirm, on_confirm, select, on_select, init,
+# on_init, status, on_status, update, on_update, catalog_publish.
 #
-# ── confirm action (order validation) ──
+# ── common (all actions) ──
 #
-# 1. Delivery lead time: delivery window start must be at least
-#    minDeliveryLeadHours after the trade timestamp (context.timestamp).
+# C1. Domain: context.domain must be "beckn.one:deg:p2p-trading-interdiscom:2.0.0".
+# C2. Version: context.version must be "2.0.0".
 #
-# 2. Validity-to-delivery gap: validity window end must be at least
-#    minDeliveryLeadHours before delivery window start.
+# ── order validation (when message.order exists) ──
 #
-# 3. Delivery slot duration: delivery window must be exactly 1 hour.
-#
-# 4. Meter ID validation:
-#    a. Buyer meterId must not be empty.
-#    b. Buyer meterId must differ from each order item's provider meterId.
-#
-# 5. Quantity bounds: beckn:quantity.unitQuantity must be >= 0 and strictly
-#    less than the offer's applicableQuantity.unitQuantity.
-#
-# 6. Currency: schema:priceCurrency must be "INR".
-#
-# 7. Quantity unit: beckn:quantity.unitText must be "kWh".
-#
-# 8. EnergyCustomer required fields: utilityCustomerId and utilityId must be
-#    present and non-empty on both buyer and provider.
-#
-# 9. EnergyCustomer @type: beckn:buyerAttributes.@type and
-#    providerAttributes.@type must be "EnergyCustomer".
-#
-# 10. Domain: context.domain must be "beckn.one:deg:p2p-trading-interdiscom:2.0.0".
-#
-# 11. Version: context.version must be "2.0.0".
-#
-# 12. EnergyCustomer @context: when @type is "EnergyCustomer", @context must
-#     match the P2P energy trading JSON-LD context URL.
-#
-# 13. EnergyTradeOrder @context: when order @type is "EnergyTradeOrder",
-#     @context must match the same URL.
-#
-# 14. EnergyTradeOffer @context: when offer @type is "EnergyTradeOffer",
-#     @context must match the same URL.
+# O1. Delivery lead time: delivery window start must be at least
+#     minDeliveryLeadHours after the trade timestamp (context.timestamp).
+# O2. Validity-to-delivery gap: validity window end must be at least
+#     minDeliveryLeadHours before delivery window start.
+# O3. Delivery slot duration: delivery window must be exactly 1 hour.
+# O4. Meter ID validation:
+#     a. Buyer meterId must not be empty.
+#     b. Buyer meterId must differ from each order item's provider meterId.
+# O5. Quantity bounds: beckn:quantity.unitQuantity must be >= 0 and strictly
+#     less than the offer's applicableQuantity.unitQuantity.
+# O6. Currency: schema:priceCurrency must be "INR".
+# O7. Quantity unit: beckn:quantity.unitText must be "kWh".
+# O8. EnergyCustomer required fields: utilityCustomerId and utilityId must be
+#     present and non-empty on both buyer and provider.
+# O9. EnergyCustomer @type: beckn:buyerAttributes.@type and
+#     providerAttributes.@type must be "EnergyCustomer".
+# O10. EnergyCustomer @context: when @type is "EnergyCustomer", @context must
+#      match the P2P energy trading JSON-LD context URL.
+# O11. EnergyTradeOrder @context: when order @type is "EnergyTradeOrder",
+#      @context must match the same URL.
+# O12. EnergyTradeOffer @context: when offer @type is "EnergyTradeOffer",
+#      @context must match the same URL.
 #
 # ── catalog_publish action (catalog item validation) ──
 #
@@ -54,7 +45,7 @@ import rego.v1
 # P2. Non-production network items: provider meterId must be TEST_METER_SELLER,
 #     provider utilityId must be TEST_DISCOM_SELLER.
 #
-# ── non-catalog_publish actions (test ID consistency) ──
+# ── test ID consistency (when message.order exists) ──
 #
 # T1. If any provider uses test identifiers (meterId or utilityId starting
 #     with "TEST_"), the buyer must also use test values:
@@ -83,7 +74,7 @@ _validity_window(offer_attrs) := object.get(offer_attrs, "validityWindow", objec
 # Rule 13 – Domain must match the P2P inter-DISCOM trading profile
 _required_domain := "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
 
-_confirm_violations contains msg if {
+_common_violations contains msg if {
 	input.context.domain
 	input.context.domain != _required_domain
 
@@ -93,7 +84,7 @@ _confirm_violations contains msg if {
 	)
 }
 
-_confirm_violations contains msg if {
+_common_violations contains msg if {
 	not input.context.domain
 
 	msg := sprintf(
@@ -105,7 +96,7 @@ _confirm_violations contains msg if {
 # Rule 14 – Version must be 2.0.0
 _required_version := "2.0.0"
 
-_confirm_violations contains msg if {
+_common_violations contains msg if {
 	input.context.version
 	input.context.version != _required_version
 
@@ -115,7 +106,7 @@ _confirm_violations contains msg if {
 	)
 }
 
-_confirm_violations contains msg if {
+_common_violations contains msg if {
 	not input.context.version
 
 	msg := sprintf(
@@ -125,7 +116,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 1 – Delivery lead time
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	offer_attrs := item["beckn:acceptedOffer"]["beckn:offerAttributes"]
 
@@ -145,7 +136,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 2 – Validity window must end at least minDeliveryLeadHours before delivery start
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	offer_attrs := item["beckn:acceptedOffer"]["beckn:offerAttributes"]
 
@@ -168,7 +159,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 3 – Delivery window must be exactly 1 hour
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	offer_attrs := item["beckn:acceptedOffer"]["beckn:offerAttributes"]
 
@@ -191,16 +182,16 @@ _confirm_violations contains msg if {
 _buyer_meter_id := input.message.order["beckn:buyer"]["beckn:buyerAttributes"].meterId
 
 # Rule 4a – Buyer meterId must not be empty
-_confirm_violations contains "buyer meterId is missing or empty" if {
+_order_violations contains "buyer meterId is missing or empty" if {
 	not _buyer_meter_id
 }
 
-_confirm_violations contains "buyer meterId is missing or empty" if {
+_order_violations contains "buyer meterId is missing or empty" if {
 	_buyer_meter_id == ""
 }
 
 # Rule 4b – Buyer meterId must differ from provider meterId on each order item
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	buyer_mid := _buyer_meter_id
 	buyer_mid != ""
 
@@ -217,7 +208,7 @@ _confirm_violations contains msg if {
 
 
 # Rule 6a – Ordered quantity must be >= 0
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	qty := item["beckn:quantity"].unitQuantity
 	qty < 0
@@ -229,7 +220,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 6b – Ordered quantity must be < applicableQuantity (offer cap)
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	qty := item["beckn:quantity"].unitQuantity
 	cap := item["beckn:acceptedOffer"]["beckn:price"].applicableQuantity.unitQuantity
@@ -242,7 +233,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 7 – Currency must be INR
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	currency := item["beckn:acceptedOffer"]["beckn:price"]["schema:priceCurrency"]
 	currency != "INR"
@@ -254,7 +245,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 8 – Quantity unit must be kWh
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	unit := item["beckn:quantity"].unitText
 	unit != "kWh"
@@ -268,16 +259,16 @@ _confirm_violations contains msg if {
 # Rule 9a – Buyer utilityCustomerId must be present and non-empty
 _buyer_utility_cust_id := input.message.order["beckn:buyer"]["beckn:buyerAttributes"].utilityCustomerId
 
-_confirm_violations contains "buyer utilityCustomerId is missing or empty" if {
+_order_violations contains "buyer utilityCustomerId is missing or empty" if {
 	not _buyer_utility_cust_id
 }
 
-_confirm_violations contains "buyer utilityCustomerId is missing or empty" if {
+_order_violations contains "buyer utilityCustomerId is missing or empty" if {
 	_buyer_utility_cust_id == ""
 }
 
 # Rule 9b – Provider utilityCustomerId must be present and non-empty per order item
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	not provider.utilityCustomerId
@@ -288,7 +279,7 @@ _confirm_violations contains msg if {
 	)
 }
 
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	provider.utilityCustomerId == ""
@@ -302,16 +293,16 @@ _confirm_violations contains msg if {
 # Rule 9c – Buyer utilityId must be present and non-empty
 _buyer_utility_id := input.message.order["beckn:buyer"]["beckn:buyerAttributes"].utilityId
 
-_confirm_violations contains "buyer utilityId is missing or empty" if {
+_order_violations contains "buyer utilityId is missing or empty" if {
 	not _buyer_utility_id
 }
 
-_confirm_violations contains "buyer utilityId is missing or empty" if {
+_order_violations contains "buyer utilityId is missing or empty" if {
 	_buyer_utility_id == ""
 }
 
 # Rule 9d – Provider utilityId must be present and non-empty per order item
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	not provider.utilityId
@@ -322,7 +313,7 @@ _confirm_violations contains msg if {
 	)
 }
 
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	provider.utilityId == ""
@@ -336,11 +327,11 @@ _confirm_violations contains msg if {
 # Rule 10a – Buyer attributes @type must be "EnergyCustomer"
 _buyer_type := input.message.order["beckn:buyer"]["beckn:buyerAttributes"]["@type"]
 
-_confirm_violations contains "buyer beckn:buyerAttributes @type is missing; must be EnergyCustomer" if {
+_order_violations contains "buyer beckn:buyerAttributes @type is missing; must be EnergyCustomer" if {
 	not _buyer_type
 }
 
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	_buyer_type
 	_buyer_type != "EnergyCustomer"
 
@@ -351,7 +342,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 10b – Provider attributes @type must be "EnergyCustomer" per order item
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	not provider["@type"]
@@ -362,7 +353,7 @@ _confirm_violations contains msg if {
 	)
 }
 
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	provider["@type"]
@@ -380,7 +371,7 @@ _confirm_violations contains msg if {
 _required_context := "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/heads/p2p-trading/schema/EnergyTrade/v0.3/context.jsonld"
 
 # Rule 15a – Buyer EnergyCustomer @context
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	buyer_attrs := input.message.order["beckn:buyer"]["beckn:buyerAttributes"]
 	buyer_attrs["@type"] == "EnergyCustomer"
 	buyer_attrs["@context"] != _required_context
@@ -391,7 +382,7 @@ _confirm_violations contains msg if {
 	)
 }
 
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	buyer_attrs := input.message.order["beckn:buyer"]["beckn:buyerAttributes"]
 	buyer_attrs["@type"] == "EnergyCustomer"
 	not buyer_attrs["@context"]
@@ -403,7 +394,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 15b – Provider EnergyCustomer @context per order item
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	provider["@type"] == "EnergyCustomer"
@@ -415,7 +406,7 @@ _confirm_violations contains msg if {
 	)
 }
 
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	provider["@type"] == "EnergyCustomer"
@@ -428,7 +419,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 16 – EnergyTradeOrder @context
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	order := input.message.order
 	order["@type"] == "EnergyTradeOrder"
 	order["@context"] != _required_context
@@ -439,7 +430,7 @@ _confirm_violations contains msg if {
 	)
 }
 
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	order := input.message.order
 	order["@type"] == "EnergyTradeOrder"
 	not order["@context"]
@@ -451,7 +442,7 @@ _confirm_violations contains msg if {
 }
 
 # Rule 17 – EnergyTradeOffer @context per order item
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	offer := item["beckn:acceptedOffer"]
 	offer["@type"] == "EnergyTradeOffer"
@@ -463,7 +454,7 @@ _confirm_violations contains msg if {
 	)
 }
 
-_confirm_violations contains msg if {
+_order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	offer := item["beckn:acceptedOffer"]
 	offer["@type"] == "EnergyTradeOffer"
@@ -477,13 +468,21 @@ _confirm_violations contains msg if {
 
 # ===== Action-gated violations (public API) =====
 #
-# Rego determines which rules apply based on input.context.action.
-# The Go plugin no longer filters by action — all actions are evaluated.
+# Rules are gated by message structure, not by action name, so they
+# automatically apply to all beckn actions (confirm, on_confirm, select,
+# on_select, init, on_init, status, on_status, update, on_update,
+# catalog_publish) without false positives.
 
-# Confirm action: all order-validation rules apply
+# Common rules (domain, version): apply to ALL actions
 violations contains msg if {
-	input.context.action == "confirm"
-	some msg in _confirm_violations
+	some msg in _common_violations
+}
+
+# Order validation rules: apply when message.order exists (skip bare status requests)
+violations contains msg if {
+	input.message.order
+	input.context.action != "status"
+	some msg in _order_violations
 }
 
 # Catalog publish action: network-based catalog item validation
@@ -492,9 +491,10 @@ violations contains msg if {
 	some msg in _publish_violations
 }
 
-# Non-publish actions (select, init, confirm, etc.): test ID consistency
+# Test ID consistency: apply when order items exist (skip bare status requests)
 violations contains msg if {
-	input.context.action != "catalog_publish"
+	input.message.order
+	input.context.action != "status"
 	some msg in _test_consistency_violations
 }
 

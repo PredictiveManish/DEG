@@ -1308,7 +1308,7 @@ _publish_item(net_id, meter, utility) := {
 }
 
 _publish_input(items) := {
-	"context": {"action": "catalog_publish"},
+	"context": {"action": "catalog_publish", "domain": _domain, "version": "2.0.0"},
 	"message": {"catalogs": [{"beckn:items": items}]},
 }
 
@@ -1349,7 +1349,7 @@ test_publish_production_unapproved_discom if {
 # --- Non-compliant: production network with missing providerAttributes ---
 test_publish_production_missing_provider if {
 	result := policy.violations with input as {
-		"context": {"action": "catalog_publish"},
+		"context": {"action": "catalog_publish", "domain": _domain, "version": "2.0.0"},
 		"message": {"catalogs": [{"beckn:items": [{
 			"@type": "beckn:Item",
 			"beckn:networkId": ["p2p-interdiscom-trading-pilot-network"],
@@ -1406,7 +1406,7 @@ test_publish_sandbox_both_real if {
 # --- Compliant: all real IDs, no test consistency triggered ---
 test_consistency_all_real_ids if {
 	result := policy.violations with input as {
-		"context": {"action": "select"},
+		"context": {"action": "select", "domain": _domain, "version": "2.0.0"},
 		"message": {"order": {
 			"beckn:buyer": {"beckn:buyerAttributes": {
 				"@type": "EnergyCustomer", "@context": _ctx,
@@ -1430,7 +1430,7 @@ test_consistency_all_real_ids if {
 # --- Compliant: all test IDs (both sides consistent) ---
 test_consistency_all_test_ids if {
 	result := policy.violations with input as {
-		"context": {"action": "select"},
+		"context": {"action": "select", "domain": _domain, "version": "2.0.0"},
 		"message": {"order": {
 			"beckn:buyer": {"beckn:buyerAttributes": {
 				"@type": "EnergyCustomer", "@context": _ctx,
@@ -1454,7 +1454,7 @@ test_consistency_all_test_ids if {
 # --- Non-compliant: provider test meter but buyer has real IDs (2 violations) ---
 test_consistency_provider_test_meter_buyer_real if {
 	result := policy.violations with input as {
-		"context": {"action": "select"},
+		"context": {"action": "select", "domain": _domain, "version": "2.0.0"},
 		"message": {"order": {
 			"beckn:buyer": {"beckn:buyerAttributes": {
 				"@type": "EnergyCustomer", "@context": _ctx,
@@ -1479,7 +1479,7 @@ test_consistency_provider_test_meter_buyer_real if {
 # --- Non-compliant: provider test discom triggers consistency (2 violations) ---
 test_consistency_provider_test_discom_buyer_real if {
 	result := policy.violations with input as {
-		"context": {"action": "init"},
+		"context": {"action": "init", "domain": _domain, "version": "2.0.0"},
 		"message": {"order": {
 			"beckn:buyer": {"beckn:buyerAttributes": {
 				"@type": "EnergyCustomer", "@context": _ctx,
@@ -1538,10 +1538,10 @@ test_consistency_on_confirm_action if {
 	count(result) == 2
 }
 
-# --- Confirm rules do NOT fire on select action ---
-test_confirm_rules_skip_on_select if {
+# --- Order rules fire on select with valid order (0 violations) ---
+test_order_rules_on_select if {
 	result := policy.violations with input as {
-		"context": {"action": "select"},
+		"context": {"action": "select", "domain": _domain, "version": "2.0.0"},
 		"message": {"order": {
 			"beckn:buyer": {"beckn:buyerAttributes": {
 				"@type": "EnergyCustomer", "@context": _ctx,
@@ -1559,7 +1559,7 @@ test_confirm_rules_skip_on_select if {
 			}],
 		}},
 	}
-	# No confirm rules fire (no action==confirm), no test consistency (no TEST_ values)
+	# Order rules fire (buyer valid, no offer/price/quantity → those rules self-gate)
 	count(result) == 0
 }
 
@@ -1597,4 +1597,170 @@ test_publish_rules_skip_on_confirm if {
 	}
 	# Even though catalog has bad data, publish rules don't fire on confirm
 	count(result) == 0
+}
+
+# ===== Cross-action coverage =====
+
+# --- Domain/version fire on catalog_publish ---
+test_common_rules_on_catalog_publish if {
+	result := policy.violations with input as {
+		"context": {"action": "catalog_publish", "domain": "wrong:domain", "version": "1.0.0"},
+		"message": {"catalogs": [{"beckn:items": [
+			_publish_item("p2p-interdiscom-trading-sandbox", "TEST_METER_SELLER", "TEST_DISCOM_SELLER"),
+		]}]},
+	}
+	# domain wrong (1) + version wrong (1) = 2
+	count(result) == 2
+}
+
+# --- Order rules fire on on_confirm (lead time violation) ---
+test_order_rules_on_on_confirm if {
+	result := policy.violations with input as {
+		"context": {"action": "on_confirm", "timestamp": "2026-01-09T00:00:00Z", "domain": _domain, "version": "2.0.0"},
+		"message": {"order": {
+			"beckn:buyer": _buyer,
+			"beckn:orderItems": [{
+				"beckn:acceptedOffer": {"beckn:offerAttributes": {"deliveryWindow": {
+					"schema:startTime": "2026-01-09T02:00:00Z",
+					"schema:endTime": "2026-01-09T03:00:00Z",
+				}}},
+			}],
+		}},
+	}
+	# Rule O1: insufficient lead time (2hrs < 4hrs)
+	count(result) == 1
+}
+
+# --- Order rules fire on init (currency violation) ---
+test_order_rules_on_init if {
+	result := policy.violations with input as {
+		"context": {"action": "init", "timestamp": "2026-01-09T00:00:00Z", "domain": _domain, "version": "2.0.0"},
+		"message": {"order": {
+			"beckn:buyer": _buyer,
+			"beckn:orderItems": [{
+				"beckn:acceptedOffer": {
+					"beckn:offerAttributes": {"deliveryWindow": {
+						"schema:startTime": "2026-01-09T08:00:00Z",
+						"schema:endTime": "2026-01-09T09:00:00Z",
+					}},
+					"beckn:price": {
+						"schema:priceCurrency": "USD",
+						"applicableQuantity": {"unitQuantity": 20.0, "unitText": "kWh"},
+					},
+				},
+				"beckn:quantity": {"unitQuantity": 10.0, "unitText": "kWh"},
+			}],
+		}},
+	}
+	# Rule O6: USD not INR
+	count(result) == 1
+}
+
+# --- Order rules fire on on_status with valid order (0 violations) ---
+test_order_rules_on_on_status if {
+	result := policy.violations with input as {
+		"context": {"action": "on_status", "timestamp": "2026-01-09T00:00:00Z", "domain": _domain, "version": "2.0.0"},
+		"message": {"order": {
+			"beckn:buyer": _buyer,
+			"beckn:orderItems": [{
+				"beckn:acceptedOffer": {
+					"beckn:offerAttributes": {"deliveryWindow": {
+						"schema:startTime": "2026-01-09T08:00:00Z",
+						"schema:endTime": "2026-01-09T09:00:00Z",
+					}},
+					"beckn:price": {
+						"schema:priceCurrency": "INR",
+						"applicableQuantity": {"unitQuantity": 20.0, "unitText": "kWh"},
+					},
+				},
+				"beckn:quantity": {"unitQuantity": 10.0, "unitText": "kWh"},
+				"beckn:orderItemAttributes": {"providerAttributes": {
+					"@type": "EnergyCustomer", "@context": _ctx,
+					"meterId": "der://meter/SELLER-001",
+					"utilityCustomerId": "UTIL-CUST-P001",
+					"utilityId": "UTIL-P001",
+				}},
+			}],
+		}},
+	}
+	count(result) == 0
+}
+
+# --- No false violations on status request with minimal order (just beckn:id) ---
+test_no_false_violations_status_request_minimal if {
+	result := policy.violations with input as {
+		"context": {"action": "status", "timestamp": "2024-10-04T15:00:00Z", "domain": _domain, "version": "2.0.0"},
+		"message": {"order": {"beckn:id": "order-energy-001"}},
+	}
+	count(result) == 0
+}
+
+# --- No false violations when message.order is absent ---
+test_no_false_violations_without_order if {
+	result := policy.violations with input as {
+		"context": {"action": "status", "domain": _domain, "version": "2.0.0"},
+		"message": {"ref_id": "some-order-id"},
+	}
+	count(result) == 0
+}
+
+# --- Order rules fire on on_update (meter validation) ---
+test_order_rules_on_on_update if {
+	result := policy.violations with input as {
+		"context": {"action": "on_update", "timestamp": "2026-01-09T00:00:00Z", "domain": _domain, "version": "2.0.0"},
+		"message": {"order": {
+			"beckn:buyer": {"beckn:buyerAttributes": {
+				"@type": "EnergyCustomer", "@context": _ctx,
+				"meterId": "der://meter/SAME-001",
+				"utilityCustomerId": "UTIL-CUST-B001",
+				"utilityId": "UTIL-B001",
+			}},
+			"beckn:orderItems": [{
+				"beckn:acceptedOffer": {
+					"beckn:offerAttributes": {"deliveryWindow": {
+						"schema:startTime": "2026-01-09T08:00:00Z",
+						"schema:endTime": "2026-01-09T09:00:00Z",
+					}},
+					"beckn:price": {
+						"schema:priceCurrency": "INR",
+						"applicableQuantity": {"unitQuantity": 20.0, "unitText": "kWh"},
+					},
+				},
+				"beckn:quantity": {"unitQuantity": 10.0, "unitText": "kWh"},
+				"beckn:orderItemAttributes": {"providerAttributes": {
+					"@type": "EnergyCustomer", "@context": _ctx,
+					"meterId": "der://meter/SAME-001",
+					"utilityCustomerId": "UTIL-CUST-P001",
+					"utilityId": "UTIL-P001",
+				}},
+			}],
+		}},
+	}
+	# Rule O4b: same meterId
+	count(result) == 1
+}
+
+# --- Test consistency fires on on_select ---
+test_consistency_on_on_select if {
+	result := policy.violations with input as {
+		"context": {"action": "on_select", "domain": _domain, "version": "2.0.0"},
+		"message": {"order": {
+			"beckn:buyer": {"beckn:buyerAttributes": {
+				"@type": "EnergyCustomer", "@context": _ctx,
+				"meterId": "der://meter/BUYER-001",
+				"utilityCustomerId": "CUST-001",
+				"utilityId": "TPDDL",
+			}},
+			"beckn:orderItems": [{
+				"beckn:orderItemAttributes": {"providerAttributes": {
+					"@type": "EnergyCustomer", "@context": _ctx,
+					"meterId": "TEST_METER_SELLER",
+					"utilityCustomerId": "CUST-002",
+					"utilityId": "TEST_DISCOM_SELLER",
+				}},
+			}],
+		}},
+	}
+	# buyer meter not TEST_METER_BUYER (1) + buyer discom not TEST_DISCOM_BUYER (1)
+	count(result) == 2
 }
