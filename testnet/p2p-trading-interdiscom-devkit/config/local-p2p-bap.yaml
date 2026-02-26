@@ -33,6 +33,7 @@ modules:
           config:
             url: https://api.dev.beckn.io/registry/dedi
             registryName: subscribers.beckn.one
+            allowedParentNamespaces: "IES,IES-DISCOMS"
             timeout: 10
         keyManager:
           id: simplekeymanager
@@ -110,6 +111,7 @@ modules:
           config:
             url: https://api.dev.beckn.io/registry/dedi
             registryName: subscribers.beckn.one
+            allowedParentNamespaces: "IES,IES-DISCOMS"
             timeout: 10
         keyManager:
           id: simplekeymanager
