@@ -499,7 +499,7 @@ publish_check_types := {
 }
 
 # Helper to find all objects with a "@type" key
-objects_with_type[path] = object {
+objects_with_type[path] := object if {
 	walk(input, [path, object])
 	is_object(object)
 	object["@type"]
