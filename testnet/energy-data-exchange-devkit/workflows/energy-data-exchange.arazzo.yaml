@@ -116,7 +116,18 @@ workflows:
           payload:
             $ref: "../examples/v2/on-status-response-processing.json"
 
-      - stepId: on-status-ready
+      - stepId: on-status-ready-url
+        description: >
+          BPP delivers data via URL download link. The performanceAttributes
+          contain dataset:downloadUrl, dataset:checksum, and dataset:fileSizeBytes
+          for the consumer to fetch the data off-beckn.
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/v2/on-status-response-ready-url.json"
+
+      - stepId: on-status-ready-inline
         description: >
           BPP delivers credential data inline via dataPayload.
           This is the key step demonstrating EnergyDataSetItem's in-message
@@ -125,7 +136,7 @@ workflows:
         requestBody:
           contentType: application/json
           payload:
-            $ref: "../examples/v2/on-status-response-ready.json"
+            $ref: "../examples/v2/on-status-response-ready-inline.json"
 
   - workflowId: energy-data-exchange-cancellation
     summary: Contract cancellation with refund

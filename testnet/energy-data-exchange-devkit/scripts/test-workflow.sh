@@ -104,7 +104,8 @@ run_step "on_select"             "$BPP_URL" "on_select" "on-select-response.json
 run_step "on_init"               "$BPP_URL" "on_init"   "on-init-response.json"
 run_step "on_confirm"            "$BPP_URL" "on_confirm" "on-confirm-response.json"
 run_step "on_status (processing)" "$BPP_URL" "on_status" "on-status-response-processing.json"
-run_step "on_status (ready+dataPayload)" "$BPP_URL" "on_status" "on-status-response-ready.json"
+run_step "on_status (ready, URL download)" "$BPP_URL" "on_status" "on-status-response-ready-url.json"
+run_step "on_status (ready, inline dataPayload)" "$BPP_URL" "on_status" "on-status-response-ready-inline.json"
 run_step "on_cancel"             "$BPP_URL" "on_cancel" "on-cancel-response.json"
 echo ""
 

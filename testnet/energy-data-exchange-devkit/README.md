@@ -46,8 +46,16 @@ BPP (BESCOM)        Catalog Service     Discovery Service       BAP (GridSync)
     │                                                                │
     │◄──── status (check delivery) ──────────────────────────────────│
     │──── on_status (PROCESSING) ──────────────────────────────────►│
-    │──── on_status (DELIVERY_COMPLETE) ───────────────────────────►│
-    │     └── dataPayload: UtilityCustomerCredential                 │
+    │                                                                │
+    │  ┌─ Delivery mode A: URL download ─────────────────────────┐  │
+    │  │ on_status (DELIVERY_COMPLETE)                            │  │
+    │  │   dataset:downloadUrl + dataset:checksum                 │ ►│
+    │  └─────────────────────────────────────────────────────────┘  │
+    │                                                                │
+    │  ┌─ Delivery mode B: Inline dataPayload ───────────────────┐  │
+    │  │ on_status (DELIVERY_COMPLETE)                            │  │
+    │  │   dataPayload: UtilityCustomerCredential                 │ ►│
+    │  └─────────────────────────────────────────────────────────┘  │
     │                                                                │
     │◄──── cancel ───────────────────────────────────────────────────│
     │──── on_cancel (refund) ──────────────────────────────────────►│
@@ -93,8 +101,9 @@ energy-data-exchange-devkit/
 │   ├── confirm-request.json         # BAP confirms with payment
 │   ├── on-confirm-response.json     # BPP acknowledges
 │   ├── status-request.json          # BAP checks status
-│   ├── on-status-response-processing.json  # BPP: processing
-│   ├── on-status-response-ready.json       # BPP: delivers dataPayload ★
+│   ├── on-status-response-processing.json      # BPP: processing
+│   ├── on-status-response-ready-url.json       # BPP: delivers via URL download
+│   ├── on-status-response-ready-inline.json    # BPP: delivers via inline dataPayload ★
 │   ├── cancel-request.json          # BAP cancels
 │   └── on-cancel-response.json      # BPP confirms cancellation + refund
 ├── install/
