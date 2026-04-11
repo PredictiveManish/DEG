@@ -21,6 +21,8 @@ components:
         dataPayload for inline data delivery. EnergyDataSetItem is a subclass
         of dataset:DataSetItem.
       additionalProperties: true
+      allOf:
+        - $ref: "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/attributes.yaml#/components/schemas/DatasetItem"
       x-tags:
         - energy
         - dataset
