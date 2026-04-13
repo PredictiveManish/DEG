@@ -133,7 +133,7 @@ python3 scripts/generate_postman_collection.py --role BAP --usecase usecase1  # 
 ## Related
 
 - [DDM DatasetItem Schema](https://github.com/beckn/DDM/tree/main/specification/schema/DatasetItem/v1) — `dataPayload` and `accessMethod`
-- [IES Core Schemas](../../specification/external/schema/ies/core/) — IES_Report, IES_Program, IES_Policy (OpenADR 3.1.0)
-- [IES ARR Schemas](../../specification/external/schema/ies/arr/) — IES_ARR_Filing, IES_ARR_FiscalYear, IES_ARR_LineItem
-- [India Energy Stack](https://github.com/India-Energy-Stack/ies-docs) — Upstream IES documentation
+- [IES Core Schemas](https://github.com/beckn/DEG/tree/ies-specs/specification/external/schema/ies/core) — IES_Report, IES_Program, IES_Policy (OpenADR 3.1.0)
+- [IES ARR Schemas](https://github.com/beckn/DEG/tree/ies-specs/specification/external/schema/ies/arr) — IES_ARR_Filing, IES_ARR_FiscalYear, IES_ARR_LineItem
+- [India Energy Stack (ies-docs)](https://github.com/India-Energy-Stack/ies-docs) — Upstream IES documentation
 - beckn/beckn-onix#655 — ONIX regex engine issue with OpenADR duration patterns
