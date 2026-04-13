@@ -83,6 +83,7 @@
               "programID": "prog-bescom-ami-metering-2026",
               "eventID": "evt-ami-scheduled-read-20260401",
               "clientName": "IntelliGrid-VEN-BLR-ZONE-A",
+              "clientID": "intelligrid-ven-blr-zone-a-001",
               "reportName": "AMI_15min_usage_BLR_ZoneA_20260401",
               "payloadDescriptors": [
                 {
@@ -97,16 +98,11 @@
               "resources": [
                 {
                   "resourceName": "METER-BESCOM-SM-2025-654321",
-                  "intervalPeriod": {
-                    "start": "2026-04-01T00:00:00+05:30",
-                    "duration": "PT15M"
-                  },
                   "intervals": [
                     {
                       "id": 0,
                       "intervalPeriod": {
-                        "start": "2026-04-01T00:00:00+05:30",
-                        "duration": "PT15M"
+                        "start": "2026-04-01T00:00:00+05:30"
                       },
                       "payloads": [
                         { "type": "USAGE", "values": [0.42] }
@@ -115,8 +111,7 @@
                     {
                       "id": 1,
                       "intervalPeriod": {
-                        "start": "2026-04-01T00:15:00+05:30",
-                        "duration": "PT15M"
+                        "start": "2026-04-01T00:15:00+05:30"
                       },
                       "payloads": [
                         { "type": "USAGE", "values": [0.38] }
@@ -125,8 +120,7 @@
                     {
                       "id": 2,
                       "intervalPeriod": {
-                        "start": "2026-04-01T00:30:00+05:30",
-                        "duration": "PT15M"
+                        "start": "2026-04-01T00:30:00+05:30"
                       },
                       "payloads": [
                         { "type": "USAGE", "values": [0.35] }
@@ -135,8 +129,7 @@
                     {
                       "id": 3,
                       "intervalPeriod": {
-                        "start": "2026-04-01T00:45:00+05:30",
-                        "duration": "PT15M"
+                        "start": "2026-04-01T00:45:00+05:30"
                       },
                       "payloads": [
                         { "type": "USAGE", "values": [0.31] }

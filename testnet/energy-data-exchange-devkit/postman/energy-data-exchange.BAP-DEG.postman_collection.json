@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "dbc4fa73-bcd0-40e1-bb8b-4dcc775c0de2",
+    "_postman_id": "dbd4336f-7b7c-4d9b-8486-eceed71eecdd",
     "name": "energy-data-exchange.BAP-DEG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Postman collection for Buyer Application Platform implementing energy-data-exchange APIs based on Beckn Protocol v2"
