@@ -18,15 +18,15 @@
     "contract": {
       "id": "660e9500-f30c-52e5-b827-557766551300",
       "descriptor": {
-        "name": "Energy Data Exchange Request",
-        "shortDesc": "Contract for BESCOM customer credential data"
+        "name": "AMI Meter Data Exchange",
+        "shortDesc": "AMI meter data exchange under existing AMISP contract"
       },
       "status": {
         "code": "ACTIVE"
       },
       "commitments": [
         {
-          "id": "commitment-energy-001",
+          "id": "commitment-ami-meter-001",
           "status": {
             "descriptor": {
               "code": "ACTIVE"
@@ -34,56 +34,58 @@
           },
           "resources": [
             {
-              "id": "ds-bescom-customer-credentials-q1-2026",
+              "id": "ds-ami-meter-data-blr-zone-a-q1-2026",
               "descriptor": {
-                "name": "BESCOM Residential Customer Credentials - Q1 2026"
+                "name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026"
               },
               "quantity": {
-                "unitText": "credential",
+                "unitText": "report",
                 "unitCode": "EA",
                 "value": "1"
               }
             }
           ],
           "offer": {
-            "id": "offer-bescom-cust-cred-inline-delivery",
+            "id": "offer-ami-meter-data-inline",
             "descriptor": {
-              "name": "Inline Credential Delivery - BESCOM Customer Data Q1 2026"
+              "name": "AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026"
             },
             "resourceIds": [
-              "ds-bescom-customer-credentials-q1-2026"
+              "ds-ami-meter-data-blr-zone-a-q1-2026"
             ]
           }
         }
       ],
       "performance": [
         {
-          "id": "perf-credential-preparation-001",
+          "id": "perf-ami-meter-preparation-001",
           "status": {
             "code": "PROCESSING",
-            "name": "Credential verification and packaging in progress"
+            "name": "AMI meter data aggregation and validation in progress"
           },
-          "commitmentIds": ["commitment-energy-001"],
+          "commitmentIds": [
+            "commitment-ami-meter-001"
+          ],
           "performanceAttributes": {
             "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld",
             "@type": "DatasetItem",
-            "schema:identifier": "ds-bescom-customer-credentials-q1-2026",
-            "schema:name": "BESCOM Residential Customer Credentials - Q1 2026",
+            "schema:identifier": "ds-ami-meter-data-blr-zone-a-q1-2026",
+            "schema:name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026",
             "schema:temporalCoverage": "2026-01-01/2026-03-31"
           }
         }
       ],
       "participants": [
         {
-          "id": "bescom-provider-001",
+          "id": "intelligrid-amisp-001",
           "descriptor": {
-            "name": "BESCOM - Bangalore Electricity Supply Company"
+            "name": "IntelliGrid AMI Services"
           }
         },
         {
-          "id": "gridsync-buyer-001",
+          "id": "bescom-discom-001",
           "descriptor": {
-            "name": "GridSync Analytics"
+            "name": "BESCOM - Distribution Company"
           }
         }
       ],

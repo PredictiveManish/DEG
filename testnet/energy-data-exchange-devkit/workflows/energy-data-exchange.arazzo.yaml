@@ -4,9 +4,9 @@ info:
   version: 1.0.0
   description: >
     End-to-end Beckn 2.0 workflow for inline energy data exchange via
-    DatasetItem with UtilityCustomerCredential dataPayload.
-    Scenario: BESCOM publishes customer credential data, GridSync Analytics
-    discovers and acquires it with in-message delivery.
+    DatasetItem with IES_Report dataPayload.
+    Scenario: IntelliGrid AMI Services (AMISP) publishes meter data,
+    BESCOM (discom) discovers and acquires it with in-message delivery.
 
     Run with Redocly respect (from energy-data-exchange-devkit/):
 
@@ -44,10 +44,10 @@ sourceDescriptions:
 
 workflows:
   - workflowId: publish-catalog
-    summary: BPP publishes energy dataset catalog to catalog service
+    summary: AMISP publishes AMI meter data catalog to catalog service
     steps:
       - stepId: publish-catalog
-        description: BPP publishes energy dataset catalog with DatasetItem resources
+        description: AMISP publishes AMI meter data catalog with DatasetItem resources
         operationId: beckn-bpp-caller.catalogPublish
         requestBody:
           contentType: application/json
@@ -55,7 +55,7 @@ workflows:
             $ref: "../examples/v2/publish-catalog.json"
 
   - workflowId: discover
-    summary: BAP discovers available energy datasets via discover service
+    summary: Discom discovers available AMI meter datasets via discover service
     steps:
       - stepId: discover
         description: BAP discovers available energy datasets on the network
@@ -66,10 +66,10 @@ workflows:
             $ref: "../examples/v2/discover-request.json"
 
   - workflowId: select-through-status
-    summary: BAP selects, negotiates, confirms, and receives energy data delivery
+    summary: Discom selects, confirms, and receives AMI meter data delivery
     steps:
       - stepId: select
-        description: BAP selects BESCOM customer credential dataset for inline delivery
+        description: Discom selects AMI meter data dataset for inline delivery
         operationId: beckn-bap-caller.select
         requestBody:
           contentType: application/json
@@ -77,7 +77,7 @@ workflows:
             $ref: "../examples/v2/select-request.json"
 
       - stepId: on-select
-        description: BPP responds with pricing and terms for selected dataset
+        description: AMISP responds with terms for selected dataset (existing contract)
         operationId: beckn-bpp-caller.onSelect
         requestBody:
           contentType: application/json
@@ -145,9 +145,9 @@ workflows:
 
       - stepId: on-status-ready-inline
         description: >
-          BPP delivers credential data inline via dataPayload.
+          AMISP delivers AMI meter data inline via dataPayload.
           This is the key step demonstrating DatasetItem's in-message
-          delivery with a UtilityCustomerCredential embedded in dataPayload.
+          delivery with an IES_Report (OpenADR telemetry) embedded in dataPayload.
         operationId: beckn-bpp-caller.onStatus
         requestBody:
           contentType: application/json

@@ -15,52 +15,53 @@
   "message": {
     "catalogs": [
       {
-        "id": "catalog-bescom-energy-data-001",
+        "id": "catalog-intelligrid-ami-data-001",
         "descriptor": {
-          "name": "BESCOM - Energy Customer Data Catalogue",
-          "shortDesc": "Utility customer credential datasets for demand-response and program enrollment"
+          "name": "IntelliGrid AMI - Energy Meter Data Catalogue",
+          "shortDesc": "Advanced metering infrastructure datasets for distribution companies"
         },
         "provider": {
-          "id": "bescom-provider-001",
+          "id": "intelligrid-amisp-001",
           "descriptor": {
-            "name": "BESCOM - Bangalore Electricity Supply Company"
+            "name": "IntelliGrid AMI Services"
           }
         },
         "resources": [
           {
-            "id": "ds-bescom-customer-credentials-q1-2026",
+            "id": "ds-ami-meter-data-blr-zone-a-q1-2026",
             "descriptor": {
-              "name": "BESCOM Residential Customer Credentials - Q1 2026",
-              "shortDesc": "Verified utility customer credentials for Bengaluru residential connections",
-              "longDesc": "Anonymized and verified UtilityCustomerCredential records for residential electricity connections in Bengaluru, suitable for demand-response program enrollment and load aggregation."
+              "name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026",
+              "shortDesc": "15-minute interval smart meter readings for residential consumers in Bengaluru Zone A",
+              "longDesc": "IES_Report-format AMI telemetry data from smart meters deployed across Bengaluru Zone A residential connections. Includes active energy (kWh) usage readings at 15-minute intervals, suitable for billing, load forecasting, and demand-response analytics."
             },
             "resourceAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld",
               "@type": "DatasetItem",
-              "schema:identifier": "ds-bescom-customer-credentials-q1-2026",
-              "schema:name": "BESCOM Residential Customer Credentials - Q1 2026",
+              "schema:identifier": "ds-ami-meter-data-blr-zone-a-q1-2026",
+              "schema:name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026",
               "schema:temporalCoverage": "2026-01-01/2026-03-31",
-              "dataset:sensitivityLevel": "CONFIDENTIAL",
+              "dataset:sensitivityLevel": "INTERNAL",
               "dataset:refreshType": "RECURRING",
-              "dataset:refreshFrequency": "P1M"
+              "dataset:refreshFrequency": "PT15M",
+              "dataset:accessMethod": "INLINE"
             }
           }
         ],
         "offers": [
           {
-            "id": "offer-bescom-cust-cred-inline-delivery",
+            "id": "offer-ami-meter-data-inline",
             "descriptor": {
-              "name": "Inline Credential Delivery - BESCOM Customer Data Q1 2026",
-              "shortDesc": "In-message delivery of verified customer credentials via beckn dataPayload"
+              "name": "AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026",
+              "shortDesc": "In-message delivery of AMI meter data via beckn dataPayload (IES_Report format)"
             },
-            "resourceIds": ["ds-bescom-customer-credentials-q1-2026"],
+            "resourceIds": ["ds-ami-meter-data-blr-zone-a-q1-2026"],
             "validity": {
               "startDate": "2026-01-01T00:00:00Z",
               "endDate": "2026-06-30T23:59:59Z"
             },
             "considerations": [
               {
-                "id": "consideration-cust-cred-price",
+                "id": "consideration-ami-existing-contract",
                 "status": {
                   "code": "ACTIVE"
                 },
@@ -68,21 +69,8 @@
                   "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
                   "@type": "PriceSpecification",
                   "currency": "INR",
-                  "value": 1500.00,
-                  "components": [
-                    {
-                      "type": "UNIT",
-                      "value": 1271.19,
-                      "currency": "INR",
-                      "description": "BESCOM Customer Credential Data - Inline delivery"
-                    },
-                    {
-                      "type": "TAX",
-                      "value": 228.81,
-                      "currency": "INR",
-                      "description": "GST 18%"
-                    }
-                  ]
+                  "value": 0,
+                  "description": "Covered under existing AMI services contract (BESCOM-AMISP-2025-001)"
                 }
               }
             ]

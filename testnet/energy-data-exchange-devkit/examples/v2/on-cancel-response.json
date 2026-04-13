@@ -18,15 +18,15 @@
     "contract": {
       "id": "660e9500-f30c-52e5-b827-557766551300",
       "descriptor": {
-        "name": "Energy Data Exchange Request",
-        "shortDesc": "Contract cancelled for BESCOM customer credential data"
+        "name": "AMI Meter Data Exchange",
+        "shortDesc": "AMI meter data exchange under existing AMISP contract"
       },
       "status": {
         "code": "CANCELLED"
       },
       "commitments": [
         {
-          "id": "commitment-energy-001",
+          "id": "commitment-ami-meter-001",
           "status": {
             "descriptor": {
               "code": "CLOSED"
@@ -34,57 +34,55 @@
           },
           "resources": [
             {
-              "id": "ds-bescom-customer-credentials-q1-2026",
+              "id": "ds-ami-meter-data-blr-zone-a-q1-2026",
               "descriptor": {
-                "name": "BESCOM Residential Customer Credentials - Q1 2026"
+                "name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026"
               },
               "quantity": {
-                "unitText": "credential",
+                "unitText": "report",
                 "unitCode": "EA",
                 "value": "1"
               }
             }
           ],
           "offer": {
-            "id": "offer-bescom-cust-cred-inline-delivery",
+            "id": "offer-ami-meter-data-inline",
             "descriptor": {
-              "name": "Inline Credential Delivery - BESCOM Customer Data Q1 2026"
+              "name": "AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026"
             },
             "resourceIds": [
-              "ds-bescom-customer-credentials-q1-2026"
+              "ds-ami-meter-data-blr-zone-a-q1-2026"
             ]
           }
         }
       ],
       "participants": [
         {
-          "id": "bescom-provider-001",
+          "id": "intelligrid-amisp-001",
           "descriptor": {
-            "name": "BESCOM - Bangalore Electricity Supply Company"
+            "name": "IntelliGrid AMI Services"
           }
         },
         {
-          "id": "gridsync-buyer-001",
+          "id": "bescom-discom-001",
           "descriptor": {
-            "name": "GridSync Analytics"
+            "name": "BESCOM - Distribution Company"
           }
         }
       ],
       "settlements": [
         {
           "id": "settlement-refund",
-          "considerationId": "consideration-energy-pricing",
+          "considerationId": "consideration-ami-existing-contract",
           "status": "COMPLETE",
           "settlementAttributes": {
             "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld",
             "@type": "Payment",
-            "beckn:paymentStatus": "REFUNDED",
+            "beckn:paymentStatus": "NOT_APPLICABLE",
             "beckn:amount": {
               "currency": "INR",
-              "value": 1500.00
-            },
-            "beckn:txnRef": "UPI-REFUND-2026-040109250099",
-            "beckn:paidAt": "2026-04-01T09:25:08Z"
+              "value": 0
+            }
           }
         }
       ]

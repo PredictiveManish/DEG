@@ -18,15 +18,15 @@
     "contract": {
       "id": "660e9500-f30c-52e5-b827-557766551300",
       "descriptor": {
-        "name": "Energy Data Exchange Request",
-        "shortDesc": "Contract for BESCOM customer credential data"
+        "name": "AMI Meter Data Exchange",
+        "shortDesc": "AMI meter data exchange under existing AMISP contract"
       },
       "status": {
         "code": "ACTIVE"
       },
       "commitments": [
         {
-          "id": "commitment-energy-001",
+          "id": "commitment-ami-meter-001",
           "status": {
             "descriptor": {
               "code": "CLOSED"
@@ -34,108 +34,148 @@
           },
           "resources": [
             {
-              "id": "ds-bescom-customer-credentials-q1-2026",
+              "id": "ds-ami-meter-data-blr-zone-a-q1-2026",
               "descriptor": {
-                "name": "BESCOM Residential Customer Credentials - Q1 2026"
+                "name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026"
               },
               "quantity": {
-                "unitText": "credential",
+                "unitText": "report",
                 "unitCode": "EA",
                 "value": "1"
               }
             }
           ],
           "offer": {
-            "id": "offer-bescom-cust-cred-inline-delivery",
+            "id": "offer-ami-meter-data-inline",
             "descriptor": {
-              "name": "Inline Credential Delivery - BESCOM Customer Data Q1 2026"
+              "name": "AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026"
             },
             "resourceIds": [
-              "ds-bescom-customer-credentials-q1-2026"
+              "ds-ami-meter-data-blr-zone-a-q1-2026"
             ]
           }
         }
       ],
       "performance": [
         {
-          "id": "perf-credential-delivery-001",
+          "id": "perf-ami-meter-delivery-001",
           "status": {
             "code": "DELIVERY_COMPLETE",
-            "name": "Credential data delivered inline via dataPayload"
+            "name": "AMI meter data delivered inline via dataPayload"
           },
-          "commitmentIds": ["commitment-energy-001"],
+          "commitmentIds": [
+            "commitment-ami-meter-001"
+          ],
           "performanceAttributes": {
             "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld",
             "@type": "DatasetItem",
-            "schema:identifier": "ds-bescom-customer-credentials-q1-2026",
-            "schema:name": "BESCOM Residential Customer Credentials - Q1 2026",
+            "schema:identifier": "ds-ami-meter-data-blr-zone-a-q1-2026",
+            "schema:name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026",
             "schema:temporalCoverage": "2026-01-01/2026-03-31",
+            "dataset:accessMethod": "INLINE",
             "dataPayload": {
-              "@context": [
-                "https://www.w3.org/2018/credentials/v1",
-                "https://raw.githubusercontent.com/beckn/DEG/deg-221-EnergyDataSets-and-Devkit/specification/schema/UtilityCustomerCredential/v2.0/context.jsonld"
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/ies-specs/specification/external/schema/ies/core/context.jsonld",
+              "@type": "IES_Report",
+              "id": "rpt-ami-blr-zone-a-20260401",
+              "objectType": "REPORT",
+              "createdDateTime": "2026-04-01T09:20:00Z",
+              "modificationDateTime": "2026-04-01T09:20:00Z",
+              "programID": "prog-bescom-ami-metering-2026",
+              "eventID": "evt-ami-scheduled-read-20260401",
+              "clientName": "IntelliGrid-VEN-BLR-ZONE-A",
+              "reportName": "AMI_15min_usage_BLR_ZoneA_20260401",
+              "payloadDescriptors": [
+                {
+                  "objectType": "REPORT_PAYLOAD_DESCRIPTOR",
+                  "payloadType": "USAGE",
+                  "readingType": "DIRECT_READ",
+                  "units": "KWH",
+                  "accuracy": 0.5,
+                  "confidence": 98
+                }
               ],
-              "@type": "UtilityCustomerCredential",
-              "issuer": {
-                "id": "did:web:bescom.karnataka.gov.in",
-                "name": "BESCOM - Bangalore Electricity Supply Company",
-                "licenseNumber": "KERC/DL/BESCOM/2024"
-              },
-              "issuanceDate": "2026-03-15T10:00:00Z",
-              "credentialSubject": {
-                "id": "did:example:consumer:ravi456",
-                "consumerNumber": "BESCOM-2025-JPN-123456",
-                "fullName": "Ravi Kumar",
-                "installationAddress": {
-                  "fullAddress": "42 MG Road, Jayanagar",
-                  "city": "Bengaluru",
-                  "stateProvince": "Karnataka",
-                  "postalCode": "560041",
-                  "country": "IN"
-                },
-                "meterNumber": "BESCOM-SM-2025-654321",
-                "serviceConnectionDate": "2020-08-15"
-              },
-              "proof": {
-                "type": "Ed25519Signature2020",
-                "created": "2026-03-15T10:00:00Z",
-                "verificationMethod": "did:web:bescom.karnataka.gov.in#key-1",
-                "proofPurpose": "assertionMethod",
-                "proofValue": "z58DAdFfa9SkqZMVPxAQpic7ndTaXoT..."
-              }
+              "resources": [
+                {
+                  "resourceName": "METER-BESCOM-SM-2025-654321",
+                  "intervalPeriod": {
+                    "start": "2026-04-01T00:00:00+05:30",
+                    "duration": "PT15M"
+                  },
+                  "intervals": [
+                    {
+                      "id": 0,
+                      "intervalPeriod": {
+                        "start": "2026-04-01T00:00:00+05:30",
+                        "duration": "PT15M"
+                      },
+                      "payloads": [
+                        { "type": "USAGE", "values": [0.42] }
+                      ]
+                    },
+                    {
+                      "id": 1,
+                      "intervalPeriod": {
+                        "start": "2026-04-01T00:15:00+05:30",
+                        "duration": "PT15M"
+                      },
+                      "payloads": [
+                        { "type": "USAGE", "values": [0.38] }
+                      ]
+                    },
+                    {
+                      "id": 2,
+                      "intervalPeriod": {
+                        "start": "2026-04-01T00:30:00+05:30",
+                        "duration": "PT15M"
+                      },
+                      "payloads": [
+                        { "type": "USAGE", "values": [0.35] }
+                      ]
+                    },
+                    {
+                      "id": 3,
+                      "intervalPeriod": {
+                        "start": "2026-04-01T00:45:00+05:30",
+                        "duration": "PT15M"
+                      },
+                      "payloads": [
+                        { "type": "USAGE", "values": [0.31] }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           }
         }
       ],
       "participants": [
         {
-          "id": "bescom-provider-001",
+          "id": "intelligrid-amisp-001",
           "descriptor": {
-            "name": "BESCOM - Bangalore Electricity Supply Company"
+            "name": "IntelliGrid AMI Services"
           }
         },
         {
-          "id": "gridsync-buyer-001",
+          "id": "bescom-discom-001",
           "descriptor": {
-            "name": "GridSync Analytics"
+            "name": "BESCOM - Distribution Company"
           }
         }
       ],
       "settlements": [
         {
           "id": "settlement-payment-completed",
-          "considerationId": "consideration-energy-pricing",
+          "considerationId": "consideration-ami-existing-contract",
           "status": "COMPLETE",
           "settlementAttributes": {
             "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld",
             "@type": "Payment",
-            "beckn:paymentStatus": "COMPLETED",
+            "beckn:paymentStatus": "NOT_APPLICABLE",
             "beckn:amount": {
               "currency": "INR",
-              "value": 1500.00
-            },
-            "beckn:txnRef": "UPI-TXN-2026-040109150045",
-            "beckn:paidAt": "2026-04-01T09:14:00Z"
+              "value": 0
+            }
           }
         }
       ]

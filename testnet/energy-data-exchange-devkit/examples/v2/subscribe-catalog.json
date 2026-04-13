@@ -20,7 +20,7 @@
       "schemaTypes": [
         "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld"
       ],
-      "callbackUrl": "https://gridsync.example.in/beckn/catalog/callback"
+      "callbackUrl": "https://bescom.example.in/beckn/catalog/callback"
     }
   }
 }

@@ -1,25 +1,30 @@
 # Energy Data Exchange Devkit
 
-Beckn Protocol v2.0 devkit demonstrating **inline energy data delivery** via DDM's `DatasetItem` schema. Instead of downloading datasets from external URLs, data (e.g., Verifiable Credentials) is embedded directly in beckn messages using the `dataPayload` attribute.
+Beckn Protocol v2.0 devkit demonstrating **inline energy data delivery** via DDM's `DatasetItem` schema. Instead of downloading datasets from external URLs, data (e.g., AMI meter readings) is embedded directly in beckn messages using the `dataPayload` attribute.
 
 ## Use Case
 
-**BESCOM** (Bangalore Electricity Supply Company) publishes a catalog of utility customer credential datasets. **GridSync Analytics** (a demand-response aggregator) discovers, negotiates, pays for, and receives the data — all within the beckn protocol message flow. The `on_status` response delivers a `UtilityCustomerCredential` inline via `dataPayload`.
+**IntelliGrid AMI Services** (an Advanced Metering Infrastructure Service Provider) publishes a catalog of smart meter data datasets. **BESCOM** (a distribution company) discovers, negotiates, and receives the data — all within the beckn protocol message flow. The `on_status` response delivers an `IES_Report` (OpenADR-based meter telemetry) inline via `dataPayload`. Consideration is minimal as the data exchange is covered under an existing AMI services contract.
 
-## Key Schema: DatasetItem (DDM)
+## Key Schemas
 
-`DatasetItem` from the [DDM](https://github.com/beckn/DDM) repository includes `dataPayload` for optional inline data delivery and `accessMethod` to declare how the dataset is delivered (`INLINE`, `DOWNLOAD`, `DATA_ENCLAVE`, `OFF_CHANNEL`). The `@context` URL in `dataPayload` resolves to the schema describing the payload structure (e.g., `UtilityCustomerCredential` from DEG).
+**DatasetItem** from [DDM](https://github.com/beckn/DDM) provides `dataPayload` for inline data delivery and `accessMethod` to declare delivery mode.
+
+**IES_Report** from [India Energy Stack](https://github.com/India-Energy-Stack/ies-docs) carries the actual meter telemetry — 15-minute interval kWh usage readings in OpenADR 3.1.0 format.
 
 ```
 DatasetItem (DDM)
-  ├── dataPayload: { @context, @type, ...credential data }
-  └── accessMethod: INLINE | DOWNLOAD | DATA_ENCLAVE | OFF_CHANNEL
+  ├── accessMethod: INLINE | DOWNLOAD | DATA_ENCLAVE | OFF_CHANNEL
+  └── dataPayload:
+        └── IES_Report (IES/OpenADR)
+              ├── resources[].intervals[].payloads: [{ type: USAGE, values: [0.42] }]
+              └── payloadDescriptors: [{ payloadType: USAGE, units: KWH }]
 ```
 
 ## Transaction Flow
 
 ```
-BPP (BESCOM)        Catalog Service     Discovery Service       BAP (GridSync)
+BPP (IntelliGrid)   Catalog Service     Discovery Service       BAP (BESCOM)
     │                     │                    │                      │
     │── publish ─────────►│                    │                      │
     │   (DatasetItem      │                    │                      │
@@ -54,7 +59,7 @@ BPP (BESCOM)        Catalog Service     Discovery Service       BAP (GridSync)
     │                                                                │
     │  ┌─ Delivery mode B: Inline dataPayload ───────────────────┐  │
     │  │ on_status (DELIVERY_COMPLETE)                            │  │
-    │  │   dataPayload: UtilityCustomerCredential                 │ ►│
+    │  │   dataPayload: IES_Report (AMI meter data)               │ ►│
     │  └─────────────────────────────────────────────────────────┘  │
     │                                                                │
     │◄──── cancel ───────────────────────────────────────────────────│
@@ -103,7 +108,7 @@ energy-data-exchange-devkit/
 │   ├── status-request.json          # BAP checks status
 │   ├── on-status-response-processing.json      # BPP: processing
 │   ├── on-status-response-ready-url.json       # BPP: delivers via URL download
-│   ├── on-status-response-ready-inline.json    # BPP: delivers via inline dataPayload ★
+│   ├── on-status-response-ready-inline.json    # BPP: delivers IES_Report via inline dataPayload ★
 │   ├── cancel-request.json          # BAP cancels
 │   └── on-cancel-response.json      # BPP confirms cancellation + refund
 ├── install/
@@ -137,5 +142,6 @@ python3 scripts/generate_postman_collection.py --role BPP
 ## Related
 
 - [DDM DatasetItem Schema](https://github.com/beckn/DDM/tree/main/specification/schema/DatasetItem/v1) — The DatasetItem schema with `dataPayload` and `accessMethod`
-- [UtilityCustomerCredential](../../specification/schema/UtilityCustomerCredential/v2.0/) — The credential type used in the dataPayload example
+- [IES Core Schemas](../../specification/external/schema/ies/core/) — IES_Report, IES_Program, IES_Policy (OpenADR 3.1.0 based)
+- [India Energy Stack](https://github.com/India-Energy-Stack/ies-docs) — Upstream IES documentation
 - [DDM rain-probability-devkit](https://github.com/beckn/DDM/tree/feat/v2-migration-ameet/testnet/rain-probability-devkit) — Reference devkit pattern
